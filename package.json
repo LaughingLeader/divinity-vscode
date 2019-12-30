@@ -1,413 +1,418 @@
 {
-  "name": "divinity-vscode",
-  "displayName": "Divinity Engine Script Support",
-  "description": "VS Code language support for Divinity Engine story scripts",
-  "author": "Sebastian Lenz",
-  "license": "MIT",
-  "version": "1.0.13",
-  "publisher": "sebastian-lenz",
-  "categories": [
-    "Programming Languages"
-  ],
-  "icon": "resources/extension.png",
-  "keywords": [
-    "Larian",
-    "Divinity Engine",
-    "Osiris",
-    "Story Script"
-  ],
-  "engines": {
-    "vscode": "^1.31.0"
-  },
-  "activationEvents": [
-    "workspaceContains:/meta.lsx",
-    "workspaceContains:**/Story/story.div",
-    "workspaceContains:**/RawFiles/story_header.div",
-    "onLanguage:divinity-story-goal",
-    "onLanguage:divinity-story-div",
-    "onWebviewPanel:divinity.apiExplorer"
-  ],
-  "homepage": "https://github.com/sebastian-lenz/divinity-vscode",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sebastian-lenz/divinity-vscode.git"
-  },
-  "bugs": {
-    "url": "https://github.com/sebastian-lenz/divinity-vscode/issues"
-  },
-  "main": "./lib/client",
-  "contributes": {
-    "configuration": {
-      "type": "object",
-      "title": "Divinity Engine Script configuration",
-      "properties": {
-        "divinity.compilerPath": {
-          "scope": "window",
-          "type": "string",
-          "description": "Set the path to the custom compiler."
-        },
-        "divinity.compilerLogPath": {
-          "scope": "window",
-          "type": "string",
-          "description": "Set the path to which the compiler log is written."
-        }
-      }
-    },
-    "commands": [
-      {
-        "command": "divinity.showApiExplorer",
-        "title": "Show API explorer",
-        "category": "Divinity"
-      },
-      {
-        "command": "divinity.installLSLib",
-        "title": "Install LSLib Compiler and Debugger",
-        "category": "Divinity"
-      },
-      {
-        "command": "divinity.installDebugger",
-        "title": "Copy LSLib Debugger to editor or game",
-        "category": "Divinity"
-      },
-      {
-        "command": "divinity.updateLSLib",
-        "title": "Update LSLib Compiler and Debugger",
-        "category": "Divinity"
-      },
-      {
-        "command": "divinity.getDebugExecutable",
-        "title": "Get debug executable",
-        "category": "Divinity"
-      },
-      {
-        "command": "divinity.storyOutline.openGoal",
-        "title": "Open Goal",
-        "category": "Divinity",
-        "when": "viewItem == sharedGoal || viewItem == customGoal"
-      },
-      {
-        "command": "divinity.storyOutline.addGoal",
-        "title": "Add new Goal",
-        "category": "Divinity",
-        "when": "viewItem == sharedGoal || viewItem == customGoal"
-      },
-      {
-        "command": "divinity.storyOutline.renameGoal",
-        "title": "Rename Goal",
-        "category": "Divinity",
-        "when": "viewItem == customGoal"
-      },
-      {
-        "command": "divinity.storyOutline.deleteGoal",
-        "title": "Delete Goal",
-        "category": "Divinity",
-        "when": "viewItem == customGoal"
-      },
-      {
-        "command": "divinity.storyOutline.moveGoal",
-        "title": "Move Goal",
-        "category": "Divinity",
-        "when": "viewItem == customGoal"
-      },
-      {
-        "command": "divinity.storyOutline.copyGoal",
-        "title": "Copy Goal to my Mod",
-        "category": "Divinity",
-        "when": "viewItem == sharedGoal"
-      }
-    ],
-    "languages": [
-      {
-        "id": "divinity-story-goal",
-        "aliases": [
-          "Divinity story goal",
-          "divinity-story-goal"
-        ],
-        "extensions": [
-          ".divGoal"
-        ],
-        "filenamePatterns": [
-          "**/Story/RawFiles/Goals/*.txt"
-        ],
-        "configuration": "./syntaxes/divinity-story-goal.language-configuration.json"
-      },
-      {
-        "id": "divinity-story-div",
-        "aliases": [
-          "Divinity story div",
-          "divinity-story-div"
-        ],
-        "extensions": [
-          ".div"
-        ],
-        "configuration": "./syntaxes/divinity-story-div.language-configuration.json"
-      },
-      {
-        "id": "divinity-story-log",
-        "aliases": [
-          "Divinity story log",
-          "divinity-story-log"
-        ],
-        "extensions": [
-          "osirislog.log"
-        ]
-      }
-    ],
-    "menus": {
-      "view/item/context": [
-        {
-          "command": "divinity.storyOutline.openGoal",
-          "when": "view == divinity.storyOutline",
-          "group": "navigation"
-        },
-        {
-          "command": "divinity.storyOutline.addGoal",
-          "when": "view == divinity.storyOutline",
-          "group": "navigation"
-        },
-        {
-          "command": "divinity.storyOutline.renameGoal",
-          "when": "view == divinity.storyOutline && viewItem != sharedGoal",
-          "group": "1_modification"
-        },
-        {
-          "command": "divinity.storyOutline.deleteGoal",
-          "when": "view == divinity.storyOutline && viewItem != sharedGoal",
-          "group": "1_modification"
-        },
-        {
-          "command": "divinity.storyOutline.moveGoal",
-          "when": "view == divinity.storyOutline && viewItem != sharedGoal",
-          "group": "1_modification"
-        },
-        {
-          "command": "divinity.storyOutline.copyGoal",
-          "when": "view == divinity.storyOutline && viewItem == sharedGoal",
-          "group": "1_modification"
-        }
-      ],
-      "editor/context": [
-        {
-          "command": "divinity.showApiExplorer",
-          "group": "navigation",
-          "when": "editorTextFocus && editorLangId == divinity-story-goal"
-        }
-      ]
-    },
-    "grammars": [
-      {
-        "language": "divinity-story-div",
-        "scopeName": "text.divinity.storydiv",
-        "path": "./syntaxes/divinity-story-div.tmLanguage.json"
-      },
-      {
-        "language": "divinity-story-goal",
-        "scopeName": "text.divinity.storygoal",
-        "path": "./syntaxes/divinity-story-goal.tmLanguage.json"
-      },
-      {
-        "language": "divinity-story-log",
-        "scopeName": "text.divinity.storylog",
-        "path": "./syntaxes/divinity-story-log.tmLanguage.json"
-      }
-    ],
-    "problemMatchers": [
-      {
-        "name": "divinity.problemMatcher",
-        "owner": "divinity-vscode",
-        "fileLocation": "absolute",
-        "pattern": {
-          "regexp": "^(WARN|ERR!) ((?:[^:]+:\\\\)?[^:]*):(\\d+):(\\d+): \\[([^\\]]+)\\] (.*)$",
-          "severity": 1,
-          "file": 2,
-          "line": 3,
-          "column": 4,
-          "code": 5,
-          "message": 6
-        }
-      }
-    ],
-    "snippets": [
-      {
-        "language": "divinity-story-goal",
-        "path": "./syntaxes/divinity-story-goal.snippets.json"
-      }
-    ],
-    "taskDefinitions": [
-      {
-        "type": "divinity.task.compiler",
-        "required": [
-          "game",
-          "gameDataPath",
-          "output",
-          "mod"
-        ],
-        "properties": {
-          "gameDataPath": {
-            "type": "string",
-            "description": "Location of the game Data folder"
-          },
-          "output": {
-            "type": "string",
-            "description": "Compiled story output path"
-          },
-          "mod": {
-            "type": "array",
-            "description": "Check and compile all goals from the specified mod"
-          },
-          "game": {
-            "type": "string",
-            "description": "Set the target game version.",
-            "enum": [
-              "dos2",
-              "dos2de"
-            ]
-          },
-          "noWarn": {
-            "type": "array",
-            "description": "Suppress warnings with diagnostic code <code>",
-            "enum": [
-              "alias-mismatch",
-              "db-naming",
-              "guid-prefix",
-              "rule-naming",
-              "string-lt",
-              "unused-db"
-            ]
-          },
-          "checkOnly": {
-            "type": "boolean",
-            "description": "Only check scripts for errors, don't generate compiled story file"
-          },
-          "checkNames": {
-            "type": "boolean",
-            "description": "Verify game object names (slow!)"
-          },
-          "debugInfo": {
-            "type": "string",
-            "description": "Debugging symbols path"
-          },
-          "debugLog": {
-            "type": "string",
-            "description": "Debugging log path"
-          },
-          "reload": {
-            "type": "string",
-            "description": "Turns on editor level reloading.",
-            "enum": [
-              "reloadStory",
-              "reloadLevelAndStory"
-            ]
-          }
-        }
-      },
-      {
-        "type": "divinity.task.reload"
-      }
-    ],
-    "debuggers": [
-      {
-        "type": "osiris",
-        "label": "Osiris Debugger",
-        "languages": [
-          "divinity-story-goal"
-        ],
-        "adapterExecutableCommand": "divinity.getDebugExecutable",
-        "configurationAttributes": {
-          "launch": {
-            "properties": {
-              "debugInfoPath": {
-                "type": "string",
-                "description": "Location of story debug symbol file"
-              },
-              "backendHost": {
-                "type": "string",
-                "description": "IP address of debugger backend server"
-              },
-              "backendPort": {
-                "type": "number",
-                "description": "Port of debugger backend server"
-              },
-              "modUuid": {
-                "type": "string",
-                "description": "The uuid of the mod beeing debugged"
-              },
-              "dbgOptions": {
-                "type": "object",
-                "description": "Debugger custom overrides",
-                "properties": {
-                  "rawFrames": {
-                    "type": "boolean",
-                    "description": "Requests the debugger to return raw call frames from the backend instead of merging and pretty printing the frames."
-                  },
-                  "stopOnAllFrames": {
-                    "type": "boolean",
-                    "description": "Stop on all frames during single-stepping instead of meaningful frames."
-                  },
-                  "stopOnDbPropagation": {
-                    "type": "boolean",
-                    "description": "Stop inside database propagation calls during single-stepping."
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    ],
-    "breakpoints": [
-      {
-        "language": "divinity-story-goal"
-      }
-    ],
-    "views": {
-      "explorer": [
-        {
-          "id": "divinity.storyOutline",
-          "name": "Story Outline",
-          "when": "divinity.storyOutline.enabled"
-        }
-      ]
-    }
-  },
-  "scripts": {
-    "compile": "rimraf ./lib/** && tsc -p ./tsconfig.publish.json && webpack",
-    "package": "vsce package",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "mocha",
-    "update-vscode": "node ./node_modules/vscode/bin/install",
-    "vscode:prepublish": "npm run update-vscode && npm run compile",
-    "watch": "rimraf ./lib/** && tsc -w -p ./tsconfig.json"
-  },
-  "devDependencies": {
-    "@types/fast-levenshtein": "0.0.1",
-    "@types/handlebars": "^4.1.0",
-    "@types/js-yaml": "^3.12.1",
-    "@types/long": "^4.0.0",
-    "@types/marked": "^0.4.2",
-    "@types/mkdirp": "^0.5.2",
-    "@types/node": "^8.10.49",
-    "@types/promise-queue": "^2.2.0",
-    "@types/rimraf": "^2.0.2",
-    "@types/unzipper": "^0.9.2",
-    "fast-levenshtein": "^2.0.6",
-    "fast-xml-parser": "^3.12.16",
-    "handlebars": "^4.1.2",
-    "js-yaml": "^3.13.1",
-    "long": "^4.0.0",
-    "mkdirp": "^0.5.1",
-    "mocha": "^5.2.0",
-    "promise-queue": "^2.2.5",
-    "rimraf": "^2.6.3",
-    "tslib": "^1.9.3",
-    "typescript": "2.8.3",
-    "unzipper": "^0.9.15",
-    "vscode": "^1.1.34",
-    "webpack": "^4.33.0",
-    "webpack-cli": "^3.3.2"
-  },
-  "dependencies": {
-    "vscode-languageclient": "^5.2.1",
-    "vscode-languageserver": "^5.2.1"
-  }
+	"name": "divinity-vscode",
+	"displayName": "Divinity Engine Script Support",
+	"description": "VS Code language support for Divinity Engine story scripts",
+	"author": "Sebastian Lenz",
+	"license": "MIT",
+	"version": "1.0.13",
+	"publisher": "sebastian-lenz",
+	"categories": [
+		"Programming Languages"
+	],
+	"icon": "resources/extension.png",
+	"keywords": [
+		"Larian",
+		"Divinity Engine",
+		"Osiris",
+		"Story Script"
+	],
+	"engines": {
+		"vscode": "^1.31.0"
+	},
+	"activationEvents": [
+		"workspaceContains:/meta.lsx",
+		"workspaceContains:**/Story/story.div",
+		"workspaceContains:**/RawFiles/story_header.div",
+		"onLanguage:divinity-story-goal",
+		"onLanguage:divinity-story-div",
+		"onWebviewPanel:divinity.apiExplorer"
+	],
+	"homepage": "https://github.com/sebastian-lenz/divinity-vscode",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/sebastian-lenz/divinity-vscode.git"
+	},
+	"bugs": {
+		"url": "https://github.com/sebastian-lenz/divinity-vscode/issues"
+	},
+	"main": "./lib/client",
+	"contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "Divinity Engine Script configuration",
+			"properties": {
+				"divinity.compilerPath": {
+					"scope": "window",
+					"type": "string",
+					"description": "Set the path to the custom compiler."
+				},
+				"divinity.compilerLogPath": {
+					"scope": "window",
+					"type": "string",
+					"description": "Set the path to which the compiler log is written."
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "divinity.showApiExplorer",
+				"title": "Show API explorer",
+				"category": "Divinity"
+			},
+			{
+				"command": "divinity.installLSLib",
+				"title": "Install LSLib Compiler and Debugger",
+				"category": "Divinity"
+			},
+			{
+				"command": "divinity.installDebugger",
+				"title": "Copy LSLib Debugger to editor or game",
+				"category": "Divinity"
+			},
+			{
+				"command": "divinity.updateLSLib",
+				"title": "Update LSLib Compiler and Debugger",
+				"category": "Divinity"
+			},
+			{
+				"command": "divinity.getDebugExecutable",
+				"title": "Get debug executable",
+				"category": "Divinity"
+			},
+			{
+				"command": "divinity.storyOutline.openGoal",
+				"title": "Open Goal",
+				"category": "Divinity",
+				"when": "viewItem == sharedGoal || viewItem == customGoal"
+			},
+			{
+				"command": "divinity.storyOutline.addGoal",
+				"title": "Add new Goal",
+				"category": "Divinity",
+				"when": "viewItem == sharedGoal || viewItem == customGoal"
+			},
+			{
+				"command": "divinity.storyOutline.renameGoal",
+				"title": "Rename Goal",
+				"category": "Divinity",
+				"when": "viewItem == customGoal"
+			},
+			{
+				"command": "divinity.storyOutline.deleteGoal",
+				"title": "Delete Goal",
+				"category": "Divinity",
+				"when": "viewItem == customGoal"
+			},
+			{
+				"command": "divinity.storyOutline.moveGoal",
+				"title": "Move Goal",
+				"category": "Divinity",
+				"when": "viewItem == customGoal"
+			},
+			{
+				"command": "divinity.storyOutline.copyGoal",
+				"title": "Copy Goal to my Mod",
+				"category": "Divinity",
+				"when": "viewItem == sharedGoal"
+			}
+		],
+		"languages": [
+			{
+				"id": "divinity-story-goal",
+				"aliases": [
+					"Divinity story goal",
+					"divinity-story-goal"
+				],
+				"extensions": [
+					".divGoal"
+				],
+				"filenamePatterns": [
+					"**/Story/RawFiles/Goals/*.txt"
+				],
+				"configuration": "./syntaxes/divinity-story-goal.language-configuration.json"
+			},
+			{
+				"id": "divinity-story-div",
+				"aliases": [
+					"Divinity story div",
+					"divinity-story-div"
+				],
+				"extensions": [
+					".div"
+				],
+				"configuration": "./syntaxes/divinity-story-div.language-configuration.json"
+			},
+			{
+				"id": "divinity-story-log",
+				"aliases": [
+					"Divinity story log",
+					"divinity-story-log"
+				],
+				"extensions": [
+					"osirislog.log"
+				]
+			}
+		],
+		"menus": {
+			"view/item/context": [
+				{
+					"command": "divinity.storyOutline.openGoal",
+					"when": "view == divinity.storyOutline",
+					"group": "navigation"
+				},
+				{
+					"command": "divinity.storyOutline.addGoal",
+					"when": "view == divinity.storyOutline",
+					"group": "navigation"
+				},
+				{
+					"command": "divinity.storyOutline.renameGoal",
+					"when": "view == divinity.storyOutline && viewItem != sharedGoal",
+					"group": "1_modification"
+				},
+				{
+					"command": "divinity.storyOutline.deleteGoal",
+					"when": "view == divinity.storyOutline && viewItem != sharedGoal",
+					"group": "1_modification"
+				},
+				{
+					"command": "divinity.storyOutline.moveGoal",
+					"when": "view == divinity.storyOutline && viewItem != sharedGoal",
+					"group": "1_modification"
+				},
+				{
+					"command": "divinity.storyOutline.copyGoal",
+					"when": "view == divinity.storyOutline && viewItem == sharedGoal",
+					"group": "1_modification"
+				}
+			],
+			"editor/context": [
+				{
+					"command": "divinity.showApiExplorer",
+					"group": "navigation",
+					"when": "editorTextFocus && editorLangId == divinity-story-goal"
+				}
+			]
+		},
+		"grammars": [
+			{
+				"language": "divinity-story-div",
+				"scopeName": "text.divinity.storydiv",
+				"path": "./syntaxes/divinity-story-div.tmLanguage.json"
+			},
+			{
+				"language": "divinity-story-goal",
+				"scopeName": "text.divinity.storygoal",
+				"path": "./syntaxes/divinity-story-goal.tmLanguage.json"
+			},
+			{
+				"language": "divinity-story-log",
+				"scopeName": "text.divinity.storylog",
+				"path": "./syntaxes/divinity-story-log.tmLanguage.json"
+			}
+		],
+		"problemMatchers": [
+			{
+				"name": "divinity.problemMatcher",
+				"owner": "divinity-vscode",
+				"fileLocation": "absolute",
+				"pattern": {
+					"regexp": "^(WARN|ERR!) ((?:[^:]+:\\\\)?[^:]*):(\\d+):(\\d+): \\[([^\\]]+)\\] (.*)$",
+					"severity": 1,
+					"file": 2,
+					"line": 3,
+					"column": 4,
+					"code": 5,
+					"message": 6
+				}
+			}
+		],
+		"snippets": [
+			{
+				"language": "divinity-story-goal",
+				"path": "./syntaxes/divinity-story-goal.snippets.json"
+			}
+		],
+		"taskDefinitions": [
+			{
+				"type": "divinity.task.compiler",
+				"required": [
+					"game",
+					"gameDataPath",
+					"output",
+					"mod"
+				],
+				"properties": {
+					"gameDataPath": {
+						"type": "string",
+						"description": "Location of the game Data folder"
+					},
+					"output": {
+						"type": "string",
+						"description": "Compiled story output path"
+					},
+					"mod": {
+						"type": "array",
+						"description": "Check and compile all goals from the specified mod"
+					},
+					"game": {
+						"type": "string",
+						"description": "Set the target game version.",
+						"enum": [
+							"dos2",
+							"dos2de"
+						]
+					},
+					"noWarn": {
+						"type": "array",
+						"description": "Suppress warnings with diagnostic code <code>",
+						"enum": [
+							"alias-mismatch",
+							"db-naming",
+							"guid-prefix",
+							"rule-naming",
+							"string-lt",
+							"unused-db"
+						]
+					},
+					"checkOnly": {
+						"type": "boolean",
+						"description": "Only check scripts for errors, don't generate compiled story file"
+					},
+					"checkNames": {
+						"type": "boolean",
+						"description": "Verify game object names (slow!)"
+					},
+					"debugInfo": {
+						"type": "string",
+						"description": "Debugging symbols path"
+					},
+					"debugLog": {
+						"type": "string",
+						"description": "Debugging log path"
+					},
+					"reload": {
+						"type": "string",
+						"description": "Turns on editor level reloading.",
+						"enum": [
+							"reloadStory",
+							"reloadLevelAndStory"
+						]
+					}
+				}
+			},
+			{
+				"type": "divinity.task.reload"
+			}
+		],
+		"debuggers": [
+			{
+				"type": "osiris",
+				"label": "Osiris Debugger",
+				"languages": [
+					"divinity-story-goal"
+				],
+				"adapterExecutableCommand": "divinity.getDebugExecutable",
+				"configurationAttributes": {
+					"launch": {
+						"properties": {
+							"debugInfoPath": {
+								"type": "string",
+								"description": "Location of story debug symbol file"
+							},
+							"backendHost": {
+								"type": "string",
+								"description": "IP address of debugger backend server"
+							},
+							"backendPort": {
+								"type": "number",
+								"description": "Port of debugger backend server"
+							},
+							"modUuid": {
+								"type": "string",
+								"description": "The uuid of the mod beeing debugged"
+							},
+							"dbgOptions": {
+								"type": "object",
+								"description": "Debugger custom overrides",
+								"properties": {
+									"rawFrames": {
+										"type": "boolean",
+										"description": "Requests the debugger to return raw call frames from the backend instead of merging and pretty printing the frames."
+									},
+									"stopOnAllFrames": {
+										"type": "boolean",
+										"description": "Stop on all frames during single-stepping instead of meaningful frames."
+									},
+									"stopOnDbPropagation": {
+										"type": "boolean",
+										"description": "Stop inside database propagation calls during single-stepping."
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		],
+		"breakpoints": [
+			{
+				"language": "divinity-story-goal"
+			}
+		],
+		"views": {
+			"explorer": [
+				{
+					"id": "divinity.storyOutline",
+					"name": "Story Outline",
+					"when": "divinity.storyOutline.enabled"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"compile": "rimraf ./lib/** && tsc -p ./tsconfig.publish.json && webpack",
+		"package": "vsce package",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "mocha",
+		"update-vscode": "node ./node_modules/vscode/bin/install",
+		"vscode:prepublish": "npm run update-vscode && npm run compile",
+		"watch": "rimraf ./lib/** && tsc -w -p ./tsconfig.json"
+	},
+	"devDependencies": {
+		"@types/fast-levenshtein": "0.0.1",
+		"@types/handlebars": "^4.1.0",
+		"@types/js-yaml": "^3.12.1",
+		"@types/long": "^4.0.0",
+		"@types/marked": "^0.4.2",
+		"@types/mkdirp": "^0.5.2",
+		"@types/node": "^8.10.49",
+		"@types/promise-queue": "^2.2.0",
+		"@types/rimraf": "^2.0.2",
+		"@types/unzipper": "^0.9.2",
+		"fast-levenshtein": "^2.0.6",
+		"fast-xml-parser": "^3.12.16",
+		"handlebars": "^4.5.3",
+		"js-yaml": "^3.13.1",
+		"long": "^4.0.0",
+		"mkdirp": "^0.5.1",
+		"mocha": "^5.2.0",
+		"promise-queue": "^2.2.5",
+		"rimraf": "^2.6.3",
+		"tslib": "^1.9.3",
+		"typescript": "2.8.3",
+		"unzipper": "^0.9.15",
+		"vscode": "^1.1.34",
+		"webpack": "^4.33.0",
+		"webpack-cli": "^3.3.2"
+	},
+	"dependencies": {
+		"vscode-languageclient": "^5.2.1",
+		"vscode-languageserver": "^5.2.1"
+	},
+	"__metadata": {
+		"id": "3afe7987-f41e-45e8-a995-608b630b743d",
+		"publisherDisplayName": "Sebastian Lenz",
+		"publisherId": "016a1667-432d-49ed-be17-5cff67fadd72"
+	}
 }
