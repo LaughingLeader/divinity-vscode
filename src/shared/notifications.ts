@@ -10,6 +10,8 @@ export interface GoalsChanged {
 export interface ProjectInfo {
   meta: ProjectMetaInfo;
   path: string;
+  osiExtenderConfig: ProjectOsirisExtenderConfig;
+  osiExtenderEnabled : boolean;
 }
 
 export interface ProjectMetaDependency {
@@ -34,6 +36,11 @@ export interface ProjectMetaInfo extends ProjectMetaDependency {
   startupLevelName?: string;
   tags?: string;
   type?: string;
+}
+
+export interface ProjectOsirisExtenderConfig {
+  RequiredExtensionVersion?: string;
+  FeatureFlags?: Array<string>;
 }
 
 export interface GoalInfo {

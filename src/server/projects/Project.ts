@@ -2,13 +2,15 @@ import Levels from "./levels/index";
 import Projects from ".";
 import Story from "./story";
 import { AnyFile } from "../parsers/pak/DataIndex";
-import { ProjectInfo, ProjectMetaInfo } from "../../shared/notifications";
+import { ProjectInfo, ProjectMetaInfo, ProjectOsirisExtenderConfig } from "../../shared/notifications";
 import { readFile } from "../../shared/fs";
 
 export default class Project implements ProjectInfo {
   readonly levels: Levels;
   readonly meta: ProjectMetaInfo;
   readonly path: string;
+  readonly osiExtenderConfig: ProjectOsirisExtenderConfig;
+  readonly osiExtenderEnabled: boolean;
   readonly projects: Projects;
   readonly story: Story;
 
@@ -16,6 +18,8 @@ export default class Project implements ProjectInfo {
     this.levels = new Levels(this);
     this.meta = info.meta;
     this.path = info.path;
+    this.osiExtenderConfig = info.osiExtenderConfig;
+    this.osiExtenderEnabled = info.osiExtenderEnabled;
     this.projects = projects;
     this.story = new Story(this);
   }
@@ -28,7 +32,9 @@ export default class Project implements ProjectInfo {
   getInfo(): ProjectInfo {
     return {
       meta: this.meta,
-      path: this.path
+      path: this.path,
+      osiExtenderConfig : this.osiExtenderConfig,
+      osiExtenderEnabled : this.osiExtenderEnabled
     };
   }
 

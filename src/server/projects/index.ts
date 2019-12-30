@@ -7,6 +7,7 @@ import parseUri, { ParsedUri } from "../utils/parseUri";
 import Project from "./Project";
 import readProjectMetaInfo from "../utils/readProjectMetaInfo";
 import readXmlFile from "../utils/readXmlFile";
+import readJsonFile from "../utils/readJsonFile";
 import Resource from "./story/resources/Resource";
 import { ProjectInfo } from "../../shared/notifications";
 
@@ -134,9 +135,17 @@ export default class Projects extends EventEmitter {
         return null;
       }
 
+      let osiExtenderEnabled = false
+      const osiExtenderConfig = readJsonFile(join(path, "OsiToolsConfig.json"));
+      if(osiExtenderConfig) {
+        osiExtenderEnabled = true;
+      }
+      
       return {
         meta: readProjectMetaInfo(data),
-        path
+        path,
+        osiExtenderConfig,
+        osiExtenderEnabled
       };
     } catch (e) {}
 

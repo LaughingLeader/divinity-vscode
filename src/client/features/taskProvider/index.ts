@@ -61,6 +61,8 @@ export interface DivinityTaskDefinition extends TaskDefinition {
   noWarn?: Array<string>;
   output: string;
   reload?: ReloadMode;
+  osiExtender?: boolean;
+  allowTypeCoercion?: boolean;
   type: "divinity.task.compiler";
 }
 
@@ -107,6 +109,8 @@ export default class TaskProviderFeature extends Feature
             project.meta.folder
           ],
           output: join(project.path, "Story", "story.div.osi"),
+          osiExtender: project.osiExtenderEnabled,
+          allowTypeCoercion: false,
           type: compilerTaskType
         };
 
@@ -240,7 +244,9 @@ export default class TaskProviderFeature extends Feature
       gameDataPath,
       mod,
       noWarn,
-      output
+      output,
+      osiExtender,
+      allowTypeCoercion
     } = definition as DivinityTaskDefinition;
 
     const args = [
@@ -276,6 +282,14 @@ export default class TaskProviderFeature extends Feature
 
     if (checkNames) {
       args.push("--check-names");
+    }
+
+    if(osiExtender) {
+      args.push("--osi-extender");
+    }
+    
+    if(allowTypeCoercion) {
+      args.push("--allow-type-coercion");
     }
 
     task.execution = new ShellExecution(quotedString(compilerPath), args);
