@@ -81,6 +81,13 @@ export default class TaskProviderFeature extends Feature
     workspace.registerTaskProvider(compilerTaskType, this);
   }
 
+  preprocessorEnabled(project : ProjectInfo): boolean
+  {
+    return (project.osiExtenderEnabled && 
+      project.osiExtenderConfig.FeatureFlags != undefined && 
+      project.osiExtenderConfig.FeatureFlags.indexOf("Preprocessor") > -1);
+  }
+
   async createTasks() {
     const { projects } = this;
     const result: Array<Task> = [];
@@ -109,7 +116,7 @@ export default class TaskProviderFeature extends Feature
             project.meta.folder
           ],
           output: join(project.path, "Story", "story.div.osi"),
-          osiExtender: project.osiExtenderEnabled,
+          osiExtender: this.preprocessorEnabled(project),
           allowTypeCoercion: false,
           type: compilerTaskType
         };
