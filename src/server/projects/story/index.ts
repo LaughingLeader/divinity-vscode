@@ -9,6 +9,7 @@ import Goal from "./Goal";
 import GoalResource from "./resources/GoalResource";
 import HeaderResource from "./resources/HeaderResource";
 import OrphanQueries from "./OrphanQueries";
+import TypeCoercionWhitelist from "./TypeCoercionWhitelist";
 import Project from "../Project";
 import Resource from "./resources/Resource";
 import sortGoals from "./utils/sortGoals";
@@ -21,6 +22,7 @@ export default class Story {
   readonly analyzers: Analyzers = new Analyzers(this);
   readonly enumerations: Enumerations = new Enumerations();
   readonly orphanQueries: OrphanQueries = new OrphanQueries(this);
+  readonly typeCoercionWhitelist: TypeCoercionWhitelist = new TypeCoercionWhitelist(this);
   readonly project: Project;
   readonly symbols: Symbols = new Symbols(this);
   readonly queue: Queue;
@@ -138,6 +140,10 @@ export default class Story {
 
   getGoalsPath(): string {
     return normalize(join(this.project.path, "Story", "RawFiles", "Goals"));
+  }
+
+  getHeaderPath(): string {
+    return normalize(join(this.project.path, "Story", "RawFiles"));
   }
 
   getStoryPath(): string {
@@ -258,11 +264,33 @@ export default class Story {
     watcher.scanAndStartSync();
     return watcher;
   }
+  
+  private createTypeCoercionWhitelistWatcher() {
+    const watcher = new FileWatcher({
+      path: this.getHeaderPath(),
+      pattern: /TypeCoercionWhitelist\.txt$/
+    });
+
+    watcher.on("update", async path => {
+      await this.typeCoercionWhitelist.loadLocal(path);
+      this.symbols.symbols.forEach(symbol => {
+        symbol.isWhitelisted = this.symbols.story.typeCoercionWhitelist.isWhitelisted(symbol);
+      });
+    });
+
+    watcher.on("remove", path => {
+      this.typeCoercionWhitelist.removeLocal();
+    });
+
+    watcher.scanAndStartSync();
+    return watcher;
+  }
 
   private createWatchers(): Array<FileWatcher> {
     const watchers: Array<FileWatcher> = [];
 
     try {
+      watchers.push(this.createTypeCoercionWhitelistWatcher());
       watchers.push(this.createGoalWatcher());
       watchers.push(this.createOrphanWatcher());
     } catch (error) {
@@ -331,6 +359,13 @@ export default class Story {
       }
 
       await this.orphanQueries.loadDependency(mod);
+
+      await this.typeCoercionWhitelist.loadDependency(mod);
+      if (this.typeCoercionWhitelist.functions.length > 0){
+        this.symbols.symbols.forEach(symbol => {
+          symbol.isWhitelisted = this.symbols.story.typeCoercionWhitelist.isWhitelisted(symbol);
+        });
+      }
     }
 
     this.resources.push(...resources);

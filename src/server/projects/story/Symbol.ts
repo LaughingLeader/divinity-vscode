@@ -62,6 +62,7 @@ export default class Symbol {
   parameterNames: Array<ScoredParameterName>;
   resolvedDefinition: SymbolDefinition | null = null;
   type: SymbolType = SymbolType.Unknown;
+  isWhitelisted: boolean = false;
 
   readonly name: string;
   readonly numParameters: number;
@@ -395,6 +396,8 @@ export default class Symbol {
       }
     }
 
+    this.isWhitelisted = this.symbols.story.typeCoercionWhitelist.isWhitelisted(this);
+  
     if (
       this.type === SymbolType.Database &&
       (!dbWrites || dbWrites.length === 0 || deadCounter === definitions.length)
@@ -413,6 +416,7 @@ export default class Symbol {
       signature.identifier.name,
       signature.parameters.length
     );
+    symbol.isWhitelisted = symbol.symbols.story.typeCoercionWhitelist.isWhitelisted(symbol);
 
     return symbol;
   }
@@ -424,8 +428,8 @@ export default class Symbol {
       signature.identifier.name,
       signature.parameters.length
     );
-
     symbol.toSystemSymbol(definition);
+    symbol.isWhitelisted = symbol.symbols.story.typeCoercionWhitelist.isWhitelisted(symbol);
     return symbol;
   }
 }

@@ -21,6 +21,7 @@ const goalRegExp = /Mods\/([^\/]+)\/Story\/RawFiles\/Goals\/(.*)/;
 const levelRegExp = /Mods\/([^\/]+)\/(Levels|Globals)\/([^\/]+)\/(Items)\/_merged.lsf/;
 const orphanQueriesRegExp = /Mods\/([^\/]+)\/Story\/story_orphanqueries_ignore_local\.txt/;
 const storyHeaderRegExp = /Mods\/Shared\/Story\/RawFiles\/story_header\.div/;
+const typeCoercionWhitelistRegExp = /Mods\/Shared\/Story\/RawFiles\/TypeCoercionWhitelist\.txt/;
 
 export type AnyFile = PackedFile | LocalFile;
 
@@ -38,12 +39,14 @@ export interface ModData {
   localPath?: string;
   name: string;
   orphanQueries?: AnyFile;
+  typeCoercionWhitelist?: AnyFile;
 }
 
 export default class DataIndex extends Parser {
   packedMods: { [name: string]: ModData } = {};
   path: string | null = null;
   storyHeader: AnyFile | null = null;
+  typeCoercionWhitelist: AnyFile | null = null;
 
   protected addFileEntry(file: PackedFile) {
     const { name } = file;
@@ -53,6 +56,13 @@ export default class DataIndex extends Parser {
       const mod = this.getPackedMod(goal[1]);
       const goalName = basename(name, ".txt");
       mod.goals[goalName] = file;
+    }
+
+    const typeCoercionWhitelist = typeCoercionWhitelistRegExp.exec(name);
+    if (typeCoercionWhitelist) {
+      this.typeCoercionWhitelist = file;
+      const mod = this.getPackedMod(typeCoercionWhitelist[1]);
+      mod.typeCoercionWhitelist = file;
     }
 
     const orphanQueries = orphanQueriesRegExp.exec(name);
@@ -168,6 +178,7 @@ export default class DataIndex extends Parser {
   protected async loadLocalMod(name: string, path: string): Promise<ModData> {
     let goals: ModGoalMap = {};
     let orphanQueries: AnyFile | undefined;
+    let typeCoercionWhitelist: AnyFile | undefined;
 
     try {
       const goalPath = join(path, "Story", "RawFiles", "Goals");
@@ -181,6 +192,20 @@ export default class DataIndex extends Parser {
             type: "local"
           };
         }
+      }
+
+      const typeCoercionWhitelistPath = join(
+        path,
+        "Story",
+        "RawFiles",
+        "TypeCoercionWhitelist.txt"
+      );
+
+      if (await exists(typeCoercionWhitelistPath)) {
+        typeCoercionWhitelist = {
+          path: typeCoercionWhitelistPath,
+          type: "local"
+        };
       }
 
       const orphanQueriesPath = join(
@@ -197,7 +222,7 @@ export default class DataIndex extends Parser {
       }
     } catch (e) {}
 
-    return { goals, localPath: path, name, orphanQueries };
+    return { goals, localPath: path, name, orphanQueries, typeCoercionWhitelist };
   }
 
   protected async loadPackage(file: string) {

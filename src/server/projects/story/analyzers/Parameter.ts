@@ -78,7 +78,8 @@ function castType(
   from: ParameterType,
   to: ParameterType,
   allowNumericCast?: boolean,
-  allowGuidCast?: boolean
+  allowGuidCast?: boolean,
+  allowStringCast?: boolean
 ): ParameterType {
   if (from === to) return from;
   if (isIntegerType(from) && isIntegerType(to)) return to;
@@ -90,6 +91,8 @@ function castType(
   }
 
   if (allowNumericCast && isNumericType(from) && isNumericType(to)) return to;
+
+  if (allowStringCast && to == ParameterType.String) return to;
 
   return ParameterType.Invalid;
 }
@@ -322,7 +325,8 @@ export default class ParameterAnalyzer extends SyncAnalyzer {
     const parameterType = this.resolveArgumentType(
       flow === ParameterFlow.Out ? definition.type : scope,
       parameter.argument,
-      parameter.valueType
+      parameter.valueType,
+      symbol.isWhitelisted
     );
 
     // Bail out if the flow is outbound
@@ -359,7 +363,8 @@ export default class ParameterAnalyzer extends SyncAnalyzer {
   resolveArgumentType(
     scope: Scope | ParameterType | null,
     argument: ArgumentNode,
-    typeAnnotation: TypeAnnotationNode | null
+    typeAnnotation: TypeAnnotationNode | null,
+    isWhitelisted: boolean = false
   ): ParameterType {
     const argumentType = getArgumentType(argument, scope);
     let result = argumentType;
@@ -369,7 +374,7 @@ export default class ParameterAnalyzer extends SyncAnalyzer {
       return result;
     }
 
-    result = castType(result, annotatedType, false, true);
+    result = castType(result, annotatedType, false, true, isWhitelisted == true);
     if (result === ParameterType.Invalid) {
       result = annotatedType;
 

@@ -160,7 +160,7 @@ export default class Symbols {
     return result;
   }
 
-  update() {
+  update(forceUpdate : boolean = false) {
     if (this.story.isInitializing) {
       return;
     }
@@ -181,7 +181,7 @@ export default class Symbols {
         index += 1;
       }
 
-      if (symbol.needsUpdate) {
+      if (forceUpdate || symbol.needsUpdate) {
         symbol.update();
       }
 
