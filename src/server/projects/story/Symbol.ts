@@ -323,8 +323,8 @@ export default class Symbol {
     return hasChanged ? result : null;
   }
 
-  resetParameters() {
-    if (this.isSystem) {
+  resetParameters(force:boolean = false) {
+    if (this.isSystem && !force) {
       console.error("Trying to reset system definition.");
       return;
     }
@@ -355,9 +355,9 @@ export default class Symbol {
     this.parameters = parameters;
   }
 
-  update() {
+  update(force:boolean = false) {
     const { definitions, isSystem, dbWrites } = this;
-    if (isSystem) {
+    if (isSystem && !force) {
       console.error("Trying to rebuild system definition.");
       this.needsUpdate = false;
       return;
@@ -406,7 +406,7 @@ export default class Symbol {
       this.needsUpdate = false;
     }
 
-    this.resetParameters();
+    this.resetParameters(force);
   }
 
   static fromCaller(symbols: Symbols, caller: CallerNode): Symbol {

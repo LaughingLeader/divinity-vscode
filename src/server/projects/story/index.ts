@@ -15,6 +15,7 @@ import Resource from "./resources/Resource";
 import sortGoals from "./utils/sortGoals";
 import Symbols from "./Symbols";
 import { existsSync } from "fs";
+import { networkInterfaces } from 'os';
 
 export default class Story {
   isInitializing: boolean = true;
@@ -37,6 +38,8 @@ export default class Story {
   private goals: Array<Goal> = [];
   private resources: Array<Resource> = [];
   private watchers: Array<FileWatcher> | null = null;
+
+  private storyHeader : HeaderResource | null = null;
 
   constructor(project: Project) {
     this.project = project;
@@ -284,20 +287,63 @@ export default class Story {
 
     watcher.scanAndStartSync();
     return watcher;
+  }  
+
+  private createStoryHeaderWatcher() {
+    const watcher = new FileWatcher({
+      path: this.getHeaderPath(),
+      pattern: /story_header\.div$/
+    });
+
+    watcher.on("update", async path => {
+      let resource = this.findResource(path);
+      if (!resource) {
+        resource = new HeaderResource({
+          file: { path, type: "local" },
+          story: this
+        });
+
+        this.resources.push(resource);
+      }
+      resource.setIsDeleted(false);
+      this.queue.add(resource.load);
+      await this.analyzeGoals();
+    });
+
+    watcher.on("remove", async path => {
+      const resource = this.findResource(path) as HeaderResource;
+      if (resource) {
+        resource.removeLocal(this.storyHeader);
+        this.removeResource(resource);
+        await this.analyzeGoals();
+      }
+    });
+
+    watcher.scanAndStartSync();
+    return watcher;
   }
 
   private createWatchers(): Array<FileWatcher> {
     const watchers: Array<FileWatcher> = [];
 
     try {
-      watchers.push(this.createTypeCoercionWhitelistWatcher());
+      watchers.push(this.createStoryHeaderWatcher());
       watchers.push(this.createGoalWatcher());
       watchers.push(this.createOrphanWatcher());
+      watchers.push(this.createTypeCoercionWhitelistWatcher());
     } catch (error) {
       this.project.projects.emit("showError", error.message);
     }
 
     return watchers;
+  }
+
+  private reloadStory = async () => {
+    const { project, symbols } = this;
+    this.updateTree();
+    //await symbols.loadMetaData();
+    //symbols.update(true);
+    await this.analyzeGoals();
   }
 
   private handleQueueEmpty = async () => {
@@ -333,12 +379,11 @@ export default class Story {
       throw new Error(`Could not locate story headers.`);
     }
 
-    resources.push(
-      new HeaderResource({
-        file: storyHeader,
-        story: this
-      })
-    );
+    this.storyHeader = new HeaderResource({
+      file: storyHeader,
+      story: this
+    });
+    resources.push(this.storyHeader);
 
     for (const dependency of dependencies) {
       const mod = await dataIndex.getMod(dependency);

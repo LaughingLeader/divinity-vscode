@@ -31,6 +31,13 @@ export default class Symbols {
     }
   }
 
+  removeSystemSymbol(definition: DefinitionNode) {
+    let symbol = this.findSymbolForSignature(definition.signature);
+    if (symbol) {
+      this.symbols.splice(this.symbols.indexOf(symbol, 1));
+    }
+  }
+
   assignSymbols(rootNode: HeaderGoalNode | StoryGoalNode) {
     for (const { node } of eachCaller(rootNode)) {
       if (node.symbol) {
@@ -182,7 +189,7 @@ export default class Symbols {
       }
 
       if (forceUpdate || symbol.needsUpdate) {
-        symbol.update();
+        symbol.update(forceUpdate);
       }
 
       if (symbol.needsUpdate) {
@@ -191,7 +198,7 @@ export default class Symbols {
     }
 
     for (const symbol of revisit) {
-      symbol.update();
+      symbol.update(forceUpdate);
     }
   }
 }
