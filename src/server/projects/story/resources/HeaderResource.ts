@@ -56,7 +56,7 @@ export default class HeaderResource extends FileResource<HeaderNode> {
 					let originalNode = originalHeader.headerNode;
 					for (const definition of this.headerNode.definitions){
 						if (originalNode.definitions.some(x => definition.signature.identifier.name === x.signature.identifier.name) == false) {
-							console.log("Removing symbol: " + definition.signature.identifier.name);
+							//console.log("Removing symbol: " + definition.signature.identifier.name);
 							this.story.symbols.removeSystemSymbol(definition);
 						}
 					}
