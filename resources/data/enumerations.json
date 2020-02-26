@@ -2546,7 +2546,7 @@
       { "value": "Soulcatcher" },
       { "value": "MasterThief" },
       { "value": "GreedyVessel" },
-      { "value": "MagicCycles" },
+      { "value": "MagicCycles" }
     ],
     "parameters": [
       { "name": "CharacterAddTalent", "index": 1 },
