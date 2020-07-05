@@ -85,7 +85,8 @@ export default class TaskProviderFeature extends Feature
   {
     return (project.osiExtenderEnabled && 
       project.osiExtenderConfig.FeatureFlags != undefined && 
-      project.osiExtenderConfig.FeatureFlags.indexOf("Preprocessor") > -1);
+      (project.osiExtenderConfig.FeatureFlags.indexOf("Preprocessor") > -1 || 
+        project.osiExtenderConfig.FeatureFlags.indexOf("OsirisExtensions") > -1));
   }
 
   async createTasks() {
